@@ -56,3 +56,24 @@ progress.addEventListener("click", scrub);
 progress.addEventListener("mousemove", (e) => mousedown && scrub(e));
 progress.addEventListener("mousedown", () => (mousedown = true));
 progress.addEventListener("mouseup", () => (mousedown = false));
+
+/* Cloudinary upload widget scripts */
+var myUploadWidget = cloudinary.createUploadWidget(
+  {
+    cloudName: "dyshaayv9",
+    uploadPreset: "uipflmhb",
+  },
+  (error, result) => {
+    if (!error && result && result.event === "success") {
+      console.log("Done! Here is the image info: ", result.info);
+    }
+  }
+);
+
+document.getElementById("upload_widget").addEventListener(
+  "click",
+  function () {
+    myUploadWidget.open();
+  },
+  false
+);
