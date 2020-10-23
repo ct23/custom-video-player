@@ -6,9 +6,10 @@ const progressBar = player.querySelector(".progress__filled");
 const toggle = player.querySelector(".toggle");
 const skipButtons = player.querySelectorAll("[data-skip]");
 const ranges = player.querySelectorAll(".player__slider");
+const volumerange = player.querySelector('input[name="volume"]');
 //create recofnitiion variable
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const recognition = new SpeechRecognition();
+const recognition = new window.SpeechRecognition();
 recognition.interimResults = true; //allows for pause before recognizing speech again
 
 
@@ -29,6 +30,23 @@ function skip() {
 
 function handleRangeUpdate() {
   video[this.name] = this.value;
+  // console.log(this);
+  console.log(this.name);
+  console.log(this.value);
+}
+
+function handleRangeUpdateVoiceUp() {
+  const currentVolume = parseFloat(volumerange.value);
+  volumerange.value = currentVolume + 0.1;
+  console.log("volumerange.value: " , volumerange.value);
+  video["volume"] = (volumerange.value);
+}
+
+function handleRangeUpdateVoiceDown() {
+  console.log(typeof volumerange.value);
+  volumerange.value -=  0.1;
+  console.log("volumerange.value: " + volumerange.value);
+  video["volume"] = (volumerange.value);
 }
 
 function handleProgress() {
@@ -66,13 +84,13 @@ ranges.forEach((range) =>
   range.addEventListener("mousemove", handleRangeUpdate)
 );
 
+
+
 let mousedown = false;
 progress.addEventListener("click", scrub);
 progress.addEventListener("mousemove", (e) => mousedown && scrub(e));
 progress.addEventListener("mousedown", () => (mousedown = true));
 progress.addEventListener("mouseup", () => (mousedown = false));
-
-
 
 // Create new paragraph after each pause
 let p = document.createElement('p');
@@ -82,18 +100,29 @@ recognition.addEventListener('result', e => {
   const transcript = Array.from(e.results)
     .map(result => result[0])
     .map(result => result.transcript)
-    .join('')
+    .join('');
   console.log(transcript);
 
   const confidence = Array.from(e.results)
     .map(result => result[0])
     .map(result => result.confidence)
-    .join('')
-  console.log(confidence);
+    .join('');
+  // console.log(confidence);
 
   if (transcript.includes('play') || (transcript.includes('pause')) &&  confidence > .92) {
     togglePlay();
   }
+
+
+  if (transcript.includes('volume up') || (transcript.includes('louder')) &&  confidence > .95) {
+    handleRangeUpdateVoiceUp();
+  }
+
+
+  if (transcript.includes('volume down') || (transcript.includes('quite')) &&  confidence > .95) {
+    handleRangeUpdateVoiceDown();
+  }
+
 });
 
 recognition.addEventListener('end', recognition.start);
