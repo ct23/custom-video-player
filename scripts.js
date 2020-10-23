@@ -6,6 +6,11 @@ const progressBar = player.querySelector(".progress__filled");
 const toggle = player.querySelector(".toggle");
 const skipButtons = player.querySelectorAll("[data-skip]");
 const ranges = player.querySelectorAll(".player__slider");
+//create recofnitiion variable
+window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.interimResults = true; //allows for pause before recognizing speech again
+
 
 /* For uploaded video: */
 var uploadedVideoURL;
@@ -37,6 +42,16 @@ function handleProgress() {
 function scrub(e) {
   const scrubTime = (e.offsetX / progress.offsetWidth) * video.duration;
   video.currentTime = scrubTime;
+}
+function redEffect(pixels) {
+  for (let i = 0; i < pixels.data.length; i += 4) {
+    pixels.data[i + 0] = pixels.data[i + 0] + 4; // RED
+    pixels.data[i + 1] = pixels.data[i + 1] - 50; // GREEN
+    pixels.data[i + 2] = pixels.data[i + 2] * 0.5; // Blue
+
+  }
+  return pixels;
+  // adding function to test if pushing works in Github.  It has no functional significance yet.
 }
 
 /* Hook up event listeners */
@@ -86,3 +101,29 @@ document.getElementById("upload_widget").addEventListener(
   },
   false
 );
+
+
+// Create new paragraph after each pause
+let p = document.createElement('p');
+
+//Event Listener for "result"
+recognition.addEventListener('result', e => {
+  const transcript = Array.from(e.results)
+    .map(result => result[0])
+    .map(result => result.transcript)
+    .join('')
+  console.log(transcript);
+
+  const confidence = Array.from(e.results)
+    .map(result => result[0])
+    .map(result => result.confidence)
+    .join('')
+  console.log(confidence);
+
+  if (transcript.includes('play') || (transcript.includes('pause')) &&  confidence > .92) {
+    togglePlay();
+  }
+});
+
+recognition.addEventListener('end', recognition.start);
+recognition.start();
