@@ -7,6 +7,9 @@ const toggle = player.querySelector(".toggle");
 const skipButtons = player.querySelectorAll("[data-skip]");
 const ranges = player.querySelectorAll(".player__slider");
 
+/* For uploaded video: */
+var uploadedVideoURL;
+
 /* Build out functions */
 function togglePlay() {
   const method = video.paused ? "play" : "pause";
@@ -61,11 +64,17 @@ progress.addEventListener("mouseup", () => (mousedown = false));
 var myUploadWidget = cloudinary.createUploadWidget(
   {
     cloudName: "dyshaayv9",
-    uploadPreset: "uipflmhb",
+    uploadPreset: "uipflmhb"
   },
   (error, result) => {
     if (!error && result && result.event === "success") {
       console.log("Done! Here is the image info: ", result.info);
+      // Set uploadedVideoURL to the full public URL for video
+      uploadedVideoURL = "https://res.cloudinary.com/dyshaayv9/video/upload/" + result.info.public_id;
+      // Set value of url_box to uploadedVideoURL
+      document.getElementById("url_box").value = uploadedVideoURL;
+      // Update video player to utilize the URL of new video
+      video.src = uploadedVideoURL;
     }
   }
 );
