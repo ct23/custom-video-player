@@ -5,9 +5,12 @@ const progress = player.querySelector(".progress");
 const progressBar = player.querySelector(".progress__filled");
 const toggle = player.querySelector(".toggle");
 const skipButtons = player.querySelectorAll("[data-skip]");
+const skipButtonAhead = player.querySelector('button[data-skip="25"]');
+const skipButtonBack = player.querySelector('button[data-skip="-10"]');
 const ranges = player.querySelectorAll(".player__slider");
 const volumerange = player.querySelector('input[name="volume"]');
-//create recofnitiion variable
+const playbackrate = player.querySelector('input[name="playbackRate"]');
+//create recognitiion variable
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new window.SpeechRecognition();
 recognition.interimResults = true; //allows for pause before recognizing speech again
@@ -25,8 +28,31 @@ function updateButton() {
 }
 
 function skip() {
+  console.log(video.currentTime);
+  console.log(video.duration);
+
   video.currentTime += parseFloat(this.dataset.skip);
 }
+
+function skipAhead() {
+  console.log("skipAhead: ");
+  console.log(skipButtonAhead);
+  video.currentTime += parseFloat(skipButtonAhead.dataset.skip);
+}
+
+function skipBack() {
+  console.log("skipBack: ");
+  console.log(skipButtonBack);
+  video.currentTime += parseFloat(skipButtonBack.dataset.skip);
+}
+
+function restart() {
+  console.log("restart: ");
+  console.log(video.currentTime);
+  video.currentTime = 2;
+  console.log(video.currentTime);
+}
+
 
 function handleRangeUpdate() {
   video[this.name] = this.value;
@@ -49,9 +75,33 @@ function handleRangeUpdateVoiceDown() {
   video["volume"] = (volumerange.value);
 }
 
+function handleRangeUpdatePlaySpeedUp() {
+  const currentSpeed = parseFloat(playbackrate.value);
+  playbackrate.value =  currentSpeed + 0.1;
+  console.log("playbackrate.value: " + playbackrate.value);
+  video["playbackRate"] = (playbackrate.value);
+}
+
+function handleRangeUpdatePlaySpeedDown() {
+  console.log(typeof playbackrate.value);
+  playbackrate.value -=  0.1;
+  console.log("playbackrate.value: " + playbackrate.value);
+  video["playbackRate"] = (playbackrate.value);
+}
+
+function backToNormal() {
+  volumerange.value = 1;
+  playbackrate.value = 1;
+  console.log(volumerange.value);
+  console.log(playbackrate.value);
+}
+
+
+
 function handleProgress() {
   const percent = (video.currentTime / video.duration) * 100;
   progressBar.style.flexBasis = `${percent}%`;
+  console.log(progressBar.style.flexBasis)
 }
 
 function scrub(e) {
@@ -118,10 +168,35 @@ recognition.addEventListener('result', e => {
     handleRangeUpdateVoiceUp();
   }
 
-
   if (transcript.includes('volume down') || (transcript.includes('quite')) &&  confidence > .95) {
     handleRangeUpdateVoiceDown();
   }
+
+  if (transcript.includes('speed up') || (transcript.includes('quickly quickly')) &&  confidence > .95) {
+    handleRangeUpdatePlaySpeedUp();
+  }
+
+  if (transcript.includes('slow down') || (transcript.includes('slowly slowly')) &&  confidence > .95) {
+    handleRangeUpdatePlaySpeedDown();
+  }
+
+  if (transcript.includes('normalize') || (transcript.includes('back to normal')) &&  confidence > .95) {
+    backToNormal();
+  }
+
+
+  if (transcript.includes('skip forward') || (transcript.includes('skip ahead')) &&  confidence > .95) {
+    skipAhead();
+  }
+  if (transcript.includes('skip back') || (transcript.includes('back 10 seconds')) &&  confidence > .95) {
+    skipBack();
+  }
+
+  
+  if (transcript.includes('restart') || (transcript.includes('play again')) &&  confidence > .95) {
+    restart();
+  }
+
 
 });
 
