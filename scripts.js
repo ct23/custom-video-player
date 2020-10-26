@@ -6,6 +6,14 @@ const progressBar = player.querySelector(".progress__filled");
 const toggle = player.querySelector(".toggle");
 const skipButtons = player.querySelectorAll("[data-skip]");
 const ranges = player.querySelectorAll(".player__slider");
+//create recofnitiion variable
+window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.interimResults = true; //allows for pause before recognizing speech again
+
+
+/* For uploaded video: */
+var uploadedVideoURL;
 
 
 /* Build out functions */
@@ -67,3 +75,56 @@ progress.addEventListener("click", scrub);
 progress.addEventListener("mousemove", (e) => mousedown && scrub(e));
 progress.addEventListener("mousedown", () => (mousedown = true));
 progress.addEventListener("mouseup", () => (mousedown = false));
+
+/* Cloudinary upload widget scripts */
+var myUploadWidget = cloudinary.createUploadWidget(
+  {
+    cloudName: "dyshaayv9",
+    uploadPreset: "uipflmhb"
+  },
+  (error, result) => {
+    if (!error && result && result.event === "success") {
+      console.log("Done! Here is the image info: ", result.info);
+      // Set uploadedVideoURL to the full public URL for video
+      uploadedVideoURL = "https://res.cloudinary.com/dyshaayv9/video/upload/" + result.info.public_id;
+      // Set value of url_box to uploadedVideoURL
+      document.getElementById("url_box").value = uploadedVideoURL;
+      // Update video player to utilize the URL of new video
+      video.src = uploadedVideoURL;
+    }
+  }
+);
+
+document.getElementById("upload_widget").addEventListener(
+  "click",
+  function () {
+    myUploadWidget.open();
+  },
+  false
+);
+
+
+// Create new paragraph after each pause
+let p = document.createElement('p');
+
+//Event Listener for "result"
+recognition.addEventListener('result', e => {
+  const transcript = Array.from(e.results)
+    .map(result => result[0])
+    .map(result => result.transcript)
+    .join('')
+  console.log(transcript);
+
+  const confidence = Array.from(e.results)
+    .map(result => result[0])
+    .map(result => result.confidence)
+    .join('')
+  console.log(confidence);
+
+  if (transcript.includes('play') || (transcript.includes('pause')) &&  confidence > .92) {
+    togglePlay();
+  }
+});
+
+recognition.addEventListener('end', recognition.start);
+recognition.start();
