@@ -16,6 +16,9 @@ const recognition = new window.SpeechRecognition();
 recognition.interimResults = true; //allows for pause before recognizing speech again
 
 
+/* For uploaded video: */
+var uploadedVideoURL;
+
 /* Build out functions */
 function togglePlay() {
   const method = video.paused ? "play" : "pause";
@@ -95,8 +98,6 @@ function backToNormal() {
   console.log(volumerange.value);
   console.log(playbackrate.value);
 }
-
-
 
 function handleProgress() {
   const percent = (video.currentTime / video.duration) * 100;
