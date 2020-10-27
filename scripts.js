@@ -107,6 +107,8 @@ document.getElementById("upload_widget").addEventListener(
 // Create new paragraph after each pause
 let p = document.createElement('p');
 
+
+
 //Event Listener for "result"
 recognition.addEventListener('result', e => {
   const transcript = Array.from(e.results)
