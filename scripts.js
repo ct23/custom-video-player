@@ -19,6 +19,7 @@ recognition.interimResults = true; //allows for pause before recognizing speech 
 /* For uploaded video: */
 var uploadedVideoURL;
 
+
 /* Build out functions */
 function togglePlay() {
   const method = video.paused ? "play" : "pause";
