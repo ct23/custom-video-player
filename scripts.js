@@ -10,6 +10,24 @@ const skipButtonBack = player.querySelector('button[data-skip="-10"]');
 const ranges = player.querySelectorAll(".player__slider");
 const volumerange = player.querySelector('input[name="volume"]');
 const playbackrate = player.querySelector('input[name="playbackRate"]');
+// Canvas elements
+const canvas = document.querySelector('#video_canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+ctx.strokeStyle = '#BADASS';
+ctx.lineJoin = 'round';
+ctx.lineCap = 'round';
+ctx.globalCompositeOperation = 'multiply';
+
+let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
+let hue = 0;
+let direction = true;
+//end Canvas elements
+
+
 //create recofnitiion variable
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
@@ -62,27 +80,27 @@ function handleRangeUpdate() {
 function handleRangeUpdateVoiceUp() {
   const currentVolume = parseFloat(volumerange.value);
   volumerange.value = currentVolume + 0.1;
-  console.log("volumerange.value: " , volumerange.value);
+  console.log("volumerange.value: ", volumerange.value);
   video["volume"] = (volumerange.value);
 }
 
 function handleRangeUpdateVoiceDown() {
   console.log(typeof volumerange.value);
-  volumerange.value -=  0.1;
+  volumerange.value -= 0.1;
   console.log("volumerange.value: " + volumerange.value);
   video["volume"] = (volumerange.value);
 }
 
 function handleRangeUpdatePlaySpeedUp() {
   const currentSpeed = parseFloat(playbackrate.value);
-  playbackrate.value =  currentSpeed + 0.1;
+  playbackrate.value = currentSpeed + 0.1;
   console.log("playbackrate.value: " + playbackrate.value);
   video["playbackRate"] = (playbackrate.value);
 }
 
 function handleRangeUpdatePlaySpeedDown() {
   console.log(typeof playbackrate.value);
-  playbackrate.value -=  0.1;
+  playbackrate.value -= 0.1;
   console.log("playbackrate.value: " + playbackrate.value);
   video["playbackRate"] = (playbackrate.value);
 }
@@ -105,26 +123,30 @@ function scrub(e) {
   const scrubTime = (e.offsetX / progress.offsetWidth) * video.duration;
   video.currentTime = scrubTime;
 }
-function redEffect(pixels) {
-  for (let i = 0; i < pixels.data.length; i += 4) {
-    pixels.data[i + 0] = pixels.data[i + 0] + 4; // RED
-    pixels.data[i + 1] = pixels.data[i + 1] - 50; // GREEN
-    pixels.data[i + 2] = pixels.data[i + 2] * 0.5; // Blue
-
+// canvas function
+function draw(e) {
+  if (!isDrawing) return;
+  ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+  [lastX, lastY] = [e.offsetX, e.offsetY];
+  hue++;
+  if (hue >= 360) {
+    hue = 0;
   }
-  return pixels;
-  // adding function to test if pushing works in Github.  It has no functional significance yet.
-}
-
-function rgbSplit(pixels) {
-  for (let i = 0; i < pixels.data.length; i += 4) {
-    pixels.data[i - 150] = pixels.data[i + 0]; // RED
-    pixels.data[i + 200] = pixels.data[i + 1]; // GREEN
-    pixels.data[i - 550] = pixels.data[i + 2];  // Blue
+  if (ctx.lineWidth >= 100 || ctx.lineWidth <= 1) {
+    direction = !direction;
   }
-  return pixels;
-  // adding function to test if pushing works in Github.  It has no functional significance yet
+  if (direction) {
+    ctx.lineWidth++;
+  } else {
+    ctx.lineWidth--;
+  }
 }
+// end canvas function
+
 
 /* Hook up event listeners */
 video.addEventListener("click", togglePlay);
@@ -146,6 +168,16 @@ progress.addEventListener("click", scrub);
 progress.addEventListener("mousemove", (e) => mousedown && scrub(e));
 progress.addEventListener("mousedown", () => (mousedown = true));
 progress.addEventListener("mouseup", () => (mousedown = false));
+
+// Event listeners for canvas element
+canvas.addEventListener('mousedown', (e) => {
+  isDrawing = true;
+  [lastX, lastY] = [e.offsetX, e.offsetY]
+});
+
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', () => isDrawing = false);
+canvas.addEventListener('mouseout', () => isDrawing = false);
 
 /* Cloudinary upload widget scripts */
 var myUploadWidget = cloudinary.createUploadWidget(
@@ -194,38 +226,38 @@ recognition.addEventListener('result', e => {
     .join('')
   console.log(confidence);
 
-  if (transcript.includes('play') || (transcript.includes('pause')) &&  confidence > .92) {
+  if (transcript.includes('play') || (transcript.includes('pause')) && confidence > .92) {
     togglePlay();
   }
 
-  if (transcript.includes('volume up') || (transcript.includes('louder')) &&  confidence > .95) {
+  if (transcript.includes('volume up') || (transcript.includes('louder')) && confidence > .95) {
     handleRangeUpdateVoiceUp();
   }
 
-  if (transcript.includes('volume down') || (transcript.includes('quite')) &&  confidence > .95) {
+  if (transcript.includes('volume down') || (transcript.includes('quite')) && confidence > .95) {
     handleRangeUpdateVoiceDown();
   }
 
-  if (transcript.includes('speed up') || (transcript.includes('quickly quickly')) &&  confidence > .95) {
+  if (transcript.includes('speed up') || (transcript.includes('quickly quickly')) && confidence > .95) {
     handleRangeUpdatePlaySpeedUp();
   }
 
-  if (transcript.includes('slow down') || (transcript.includes('slowly slowly')) &&  confidence > .95) {
+  if (transcript.includes('slow down') || (transcript.includes('slowly slowly')) && confidence > .95) {
     handleRangeUpdatePlaySpeedDown();
   }
 
-  if (transcript.includes('normalize') || (transcript.includes('back to normal')) &&  confidence > .95) {
+  if (transcript.includes('normalize') || (transcript.includes('back to normal')) && confidence > .95) {
     backToNormal();
   }
 
-  if (transcript.includes('skip forward') || (transcript.includes('skip ahead')) &&  confidence > .95) {
+  if (transcript.includes('skip forward') || (transcript.includes('skip ahead')) && confidence > .95) {
     skipAhead();
   }
-  if (transcript.includes('skip back') || (transcript.includes('back 10 seconds')) &&  confidence > .95) {
+  if (transcript.includes('skip back') || (transcript.includes('back 10 seconds')) && confidence > .95) {
     skipBack();
   }
 
-  if (transcript.includes('restart') || (transcript.includes('play again')) &&  confidence > .95) {
+  if (transcript.includes('restart') || (transcript.includes('play again')) && confidence > .95) {
     restart();
   }
 
