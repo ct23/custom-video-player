@@ -10,7 +10,9 @@
 
    <div class="player">
     <canvas class="canvas" id="video_canvas"></canvas>
-     <video class="player__video viewer" src="652333414.mp4"></video>
+     <video id="videoPlayer" class="player__video viewer" src="652333414.mp4"></video>
+
+
 
      <div class="player__controls">
        <div class="progress">
@@ -24,6 +26,13 @@
      </div>
    </div>
 
+   <button onclick="defaultColor()">Default Color</button>
+   <button onclick="blackAndWhite()">Black and White</button>
+
+   <br><br>
+
+
+
    <!-- Upload form for user-submitted videos -->
    <div>
     <button id="upload_widget" class="cloudinary-button">Upload a video</button>
@@ -33,6 +42,7 @@
    <div>
      URL of your uploaded video: <input id="url_box">
    </div>
+
 
   <!-- Cloudinary Widget JS -->
   <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript">  

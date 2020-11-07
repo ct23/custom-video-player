@@ -146,6 +146,14 @@ function draw(e) {
   }
 }
 // end canvas function
+function defaultColor() {
+  document.getElementById("videoPlayer").style.filter = "grayscale(0%)";
+}
+
+function blackAndWhite() {
+  document.getElementById("videoPlayer").style.filter = "grayscale(100%)";
+}
+
 
 
 /* Hook up event listeners */
