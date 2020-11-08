@@ -154,6 +154,14 @@ function blackAndWhite() {
   document.getElementById("videoPlayer").style.filter = "grayscale(100%)";
 }
 
+function saturate() {
+  document.getElementById("videoPlayer").style.filter = "saturate(10)";
+}
+
+function rotateHue() {
+  document.getElementById("videoPlayer").style.filter = "hue-rotate(90deg)";
+}
+
 
 
 /* Hook up event listeners */
