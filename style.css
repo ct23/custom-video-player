@@ -118,7 +118,10 @@ body {
   position:absolute;
   bottom:180px;
   left:160px;
+  
+  
 }
+
 /* unholy css to style input type="range" */
 
 input[type=range] {
