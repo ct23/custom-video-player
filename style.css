@@ -113,6 +113,12 @@ body {
   z-index: 10;
   background-color: transparent;
 }
+
+.button {
+  position:absolute;
+  bottom:180px;
+  left:160px;
+}
 /* unholy css to style input type="range" */
 
 input[type=range] {
